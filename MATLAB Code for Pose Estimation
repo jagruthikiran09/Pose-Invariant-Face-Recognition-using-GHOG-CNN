@@ -1,0 +1,54 @@
+MATLAB CODE FOR POSE ESTIMATION
+
+clc;
+clear all;
+close all;
+ds=imread('C:\Users\Desktop\New folder\Face1\Faces71\6.jpg');
+% I1=read(ds);
+I2=rgb2gray(ds);
+
+wavelength=2;
+orientation=60;
+I3 = im2bw(I2,0.3);
+%se = strel('line',6,90);
+
+se = strel('square',1);
+
+se1 = strel('square',1);
+I4 = imdilate(I3,se);
+I4 = double(I4);
+I5 = imerode(I4,se1);I5=double(I5);
+I3= double(I3);
+
+figure
+subplot(1,4,1);
+imshowpair(ds,I5,'montage');
+i1=I5;
+% i1=rgb2gray(i1);
+mg1=[];
+ph1=[];
+wavelength = 2;
+orientation = 60;
+[mag,phase] = imgaborfilt(i1,wavelength,orientation);
+mg1=[mg1,mag];
+ph1=[ph1,phase];
+% phase1 = sum(sum(abs(phase)));
+% mag1 = sum(sum(mag));
+
+74
+
+% [h,v]=extractHOGFeatures(mag);
+subplot(1,4,2);
+imshow(mag,[])
+title('Gabor magnitude');
+subplot(1,4,3);
+imshow(phase,[]);
+title('Gabor phase');
+I5 = mag
+corners = detectFASTFeatures(I5);
+strongest = selectStrongest(corners,10);
+[hog2, validPoints,ptVis] = extractHOGFeatures(I5,strongest);
+subplot(1,4,4);imshow(I5);
+title('HOG points');
+hold on;
+plot(ptVis,'Color','green');

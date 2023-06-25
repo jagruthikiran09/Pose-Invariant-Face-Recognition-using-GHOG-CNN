@@ -1,0 +1,55 @@
+CNN MATLAB Code
+
+
+%% PART 1: Baseline Classifier
+%% Create image data store
+imds = imageDatastore(fullfile('C:\Users\Desktop\New folder\EXP5 FR\FACE_30'),...
+'IncludeSubfolders',true,'FileExtensions','.jpg','LabelSource','foldernames');
+% (OPTIONAL) Count number of images per label
+labelCount = countEachLabel(imds);
+%% Create training and validation sets
+[imdsTrainingSet, imdsValidationSet] = splitEachLabel(imds, 0.5, 'randomize');
+%% Create simple CNN
+% imageSize = [100 82 1];
+imageSize = [128 128 3];
+% Specify the convolutional neural network architecture.
+layers = [
+imageInputLayer(imageSize)
+convolution2dLayer(3,8,'Padding','same')
+
+75
+
+batchNormalizationLayer
+reluLayer
+maxPooling2dLayer(2,'Stride',2)
+convolution2dLayer(3,16,'Padding','same')
+batchNormalizationLayer
+reluLayer
+maxPooling2dLayer(2,'Stride',2)
+convolution2dLayer(3,32,'Padding','same')
+batchNormalizationLayer
+reluLayer
+fullyConnectedLayer(12)
+softmaxLayer
+classificationLayer];
+%% Specify training options (stochastic gradient descent with momentum)
+options = trainingOptions('sgdm', ...
+'MaxEpochs',50, ...
+'ValidationData',imdsValidationSet, ...
+'ValidationFrequency',30, ...
+'Verbose',false, ...
+'MiniBatchSize',64,...
+'Plots','training-progress');
+%% Train the network.
+net1 = trainNetwork(imdsTrainingSet,layers,options);
+save net1.mat net1;
+%% Report accuracy of baseline classifier on validation set
+YPred = classify(net1,imdsValidationSet);
+YValidation = imdsValidationSet.Labels;
+
+76
+imdsAccuracy = sum(YPred == YValidation)/numel(YValidation);
+fprintf('Accuracy is:')
+imdsAccuracy
+% Confusion matrix
+plotconfusion(YValidation,YPred)
